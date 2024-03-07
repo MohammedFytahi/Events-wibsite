@@ -124,26 +124,9 @@
                 </svg>
                 <h1 class="px-2 text-sm">Places disponibles : {{ $event->available_places }}</h1>
             </div>
-            <div class="flex justify-center mt-4">
-              @if(auth()->check() && auth()->user()->role === 'utilisateur')
-              <form method="POST" action="{{ route('events.reserve', ['eventId' => $event->id]) }}">
-                  @csrf
-                  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                      Réserver
-                  </button>
-              </form>
-          @endif
-          
+            
 
-              @if(auth()->check() && auth()->user()->id === $event->user_id)
-    <div class="flex justify-end mt-4">
-        <a href="{{ route('events.edit', ['eventId' => $event->id]) }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-            Modifier
-        </a>
-        
-    </div>
-   
-    @endif
+           
     <a href="{{ route('events.statistics', ['eventId' => $event->id]) }}" class="text-blue-500 hover:underline">  statistiques  </a>
     @if(auth()->check() && auth()->user()->id === $event->user_id)
     <form method="POST" action="{{ route('events.destroy', ['event' => $event->id]) }}">
@@ -154,6 +137,16 @@
       </button>
   </form>
   @endif
+  @if (!$event->validated)
+  <form action="{{ route('confirmEvent', ['eventId' => $event->id]) }}" method="POST">
+      @csrf
+      @method('PUT') <!-- Ajoutez cette ligne pour spécifier la méthode PUT -->
+      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Confirmer
+      </button>
+  </form>
+@endif
+
 
             </div>
         </div>

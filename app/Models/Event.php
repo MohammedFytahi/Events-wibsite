@@ -21,7 +21,8 @@ class Event extends Model
         'available_places',
         'type_of_reservation',
         'status',
-        'user_id'
+        'user_id',
+        'validated',
     ];
 
     public function category()

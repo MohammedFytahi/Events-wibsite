@@ -12,12 +12,13 @@ use App\Models\Category;
 class EventController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
+        $events = Event::where('validated', true)->paginate(10); 
         $categories=Category::all();
-        $events = Event::all();
         return view('events.index', compact('events','categories'));
     }
+    
     public function create()
     {
         $categories = Category::all();
@@ -138,11 +139,15 @@ class EventController extends Controller
 }
 public function filterByCategory(Request $request)
 {
-    $categoryId = $request->input('categorie_id');
-    $events = Event::where('categorie_id', $categoryId)->get();
-    return response()->json([
-        'events' => $events
-    ]);
+    $categoryId = $request->categoryId;
+
+    if ($categoryId) {
+        $events = Event::where('category_id', $categoryId)->get();
+    } else {
+        $events = Event::all();
+    }
+
+    return view('event_list')->with('events', $events);
 }
 
 public function showReservationStatistics($eventId)
@@ -162,10 +167,5 @@ public function showReservationStatistics($eventId)
     }
 
     
-public function paginate(Request $request)
-{
-    $events = Event::paginate(10); // Par exemple, récupérez les événements paginés
 
-    return view('events.index', compact('events'));
-}
 }

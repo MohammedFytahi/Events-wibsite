@@ -25,11 +25,19 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::middleware(['auth','role:admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'getUsersExceptAdmin']);
+    Route::get('/admin/events', [AdminController::class, 'events']);
+    Route::put('/admin/confirm-event/{eventId}', [AdminController::class, 'confirmEvent'])->name('confirmEvent');
+
+
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('/admin/dashboard', [AdminController::class, 'index']);
+   
     Route::get('/organisation/dashboard', [OraganisatorController::class, 'index']);
    Route::get('/createev', [EventController::class, 'create']);
 Route::post('/events', [EventController::class,'store'])->name('events.store');
@@ -41,7 +49,10 @@ Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('eve
 Route::get('/search', [EventController::class, 'search'])->name('entreprise.search');
 Route::get('/events/filter', [EventController::class, 'filterByCategory'])->name('events.filterByCategory');
 Route::get('/events/{eventId}/statistics', [EventController::class, 'showReservationStatistics'])->name('events.statistics');
-Route::get('/events/paginate', [EventController::class, 'paginate'])->name('events.paginate');
+Route::get('/events', [EventController::class, 'index'])->name('events.index');
+Route::post('/block-user/{userId}', [AdminController::class, 'blockUser'])->name('blockUser');
+Route::post('/unblock-user/{userId}', [AdminController::class, 'unblockUser'])->name('unblockUser');
+
 
 
 

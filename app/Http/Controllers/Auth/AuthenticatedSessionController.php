@@ -23,16 +23,28 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse{$request->authenticate();
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        // Authentifier l'utilisateur
+        $request->authenticate();
 
+        // Régénérer la session
         $request->session()->regenerate();
 
+        // Vérifier si l'utilisateur est bloqué
+        if ($request->user()->isBlocked()) {
+            // Déconnecter l'utilisateur et rediriger avec un message d'erreur
+            Auth::logout();
+            return redirect()->route('login')->with('error', 'Votre compte est bloqué. Veuillez contacter l\'administrateur.');
+        }
+
+        // Rediriger l'utilisateur en fonction de son rôle
         $url = '';
-        if($request->user()->role === 'admin'){
+        if ($request->user()->role === 'admin') {
             $url = 'admin/dashboard';
-        }elseif($request->user()->role === 'organisateur'){
+        } elseif ($request->user()->role === 'organisateur') {
             $url = 'organisation/dashboard';
-        }elseif($request->user()->role === 'utilisateur'){
+        } elseif ($request->user()->role === 'utilisateur') {
             $url = '/dashboard';
         }
 

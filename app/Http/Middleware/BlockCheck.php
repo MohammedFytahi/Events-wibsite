@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckOrganizerRole
+class BlockCheck
 {
     /**
      * Handle an incoming request.
