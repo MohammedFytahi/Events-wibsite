@@ -57,37 +57,51 @@ class EventController extends Controller
         return redirect()->back()->with('success', 'Event added successfully!');
     }
 
+public function reserve($eventId)
+{
+    $event = Event::findOrFail($eventId);
 
-    public function reserve( $eventId)
-    {
-        $event = Event::findOrFail($eventId);
+    
+    $existingReservation = Reservation::where('event_id', $event->id)
+        ->where('user_id', Auth::id())
+        ->first();
 
-        // Vérifie si l'utilisateur a déjà réservé une place pour cet événement
-        // $existingReservation = Reservation::where('event_id', $event->id)
-        //     ->where('user_id', Auth::id())
-        //     ->first();
+    if ($existingReservation) {
+        return redirect()->back()->with('error', 'Vous avez déjà réservé une place pour cet événement.');
+    }
 
-        // if ($existingReservation) {
-        //     return redirect()->back()->with('error', 'Vous avez déjà réservé une place pour cet événement.');
-        // }
 
-        // Vérifie si des places sont disponibles pour l'événement
-        if ($event->available_places <= 0) {
-            return redirect()->back()->with('error', 'Désolé, il n\'y a plus de places disponibles pour cet événement.');
-        }
+    if ($event->available_places <= 0) {
+        return redirect()->back()->with('error', 'Désolé, il n\'y a plus de places disponibles pour cet événement.');
+    }
 
+    $reservation = new Reservation();
+    $reservation->event_id = $event->id;
+    $reservation->user_id = Auth::id();
+
+  
+    if ($event->type_of_reservation === 'Automatique') {
        
-        $reservation = new Reservation();
-        $reservation->event_id = $event->id;
-        $reservation->user_id = Auth::id();
-        $reservation->save();
+        $reservation->status = 'valid';
+    } else if ($event->type_of_reservation === 'par_confirmation') {
 
-        // Met à jour le nombre de places disponibles pour l'événement
+        $reservation->status = 'non valid';
+    }
+
+    $reservation->save();
+
+    if ($reservation->status === 'valid') {
         $event->available_places -= 1;
         $event->save();
-
-        return redirect()->back()->with('success', 'Votre réservation a été enregistrée avec succès.');
+        
     }
+
+    return redirect()->back()->with('success', 'Votre réservation a été enregistrée avec succès.');
+}
+
+    
+
+
 
     public function edit($eventId)
     {
